@@ -1,0 +1,174 @@
+homeassistant:
+  # Name of the location where Home Assistant is running
+  name: CasaDeSuciu
+  # Location required to calculate the time the sun rises and sets
+  latitude: 46.7667
+  longitude: 23.6
+  # Impacts weather/sunrise data (altitude above sea level in meters)
+  elevation: 352
+  # metric for Metric, imperial for Imperial
+  unit_system: metric
+  # Pick yours from here: http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  time_zone: Europe/Bucharest
+  
+  customize:
+   sensor.serastatus:
+    friendly_name: Status
+    icon: mdi:power
+   script.start_pump:
+    friendly_name: Manual Start Pump
+    icon: mdi:water-pump
+   sensor.serapumpstatus:
+    friendly_name: Pump
+    icon: mdi:water
+   sensor.serahumidity:
+    friendly_name: Humidity
+    icon: mdi:water-percent
+   sensor.seratemperature:
+    friendly_name: Temperature
+    icon: mdi:temperature-celsius
+   sensor.serasoilhumidity:
+    friendly_name: Soil Moisture
+    icon: mdi:earth
+   sensor.seralight:
+    friendly_name: Light Level
+    icon: mdi:white-balance-sunny
+   sensor.serawaterlvl:
+    friendly_name: Water Level
+    icon: mdi:cup-water
+   
+
+# Show links to resources in log and frontend
+#introduction:
+
+# Enables the frontend
+frontend:
+
+# Enables configuration UI
+config:
+
+#weather:
+#  - platform: openweathermap
+#    api_key: !secret openweathermap_key
+#    name: Vremea
+#    latitude: 46.7667
+#    longitude: 23.6
+  
+http:
+  # Uncomment this to add a password (recommended!)
+  api_password: !secret http_password
+  base_url: !secret http_url
+  ssl_certificate: !secret ssl_cert
+  ssl_key: !secret ssl_priv_key
+
+# Checks for available updates
+updater:
+
+# Discover some devices automatically
+discovery:
+#  ignore:
+#    - google_cast    
+#    - plex_mediaserver
+  
+media_player:
+  - platform: lg_netcast
+    access_token: 895129
+    host: 192.168.0.14
+  - platform: plex
+    entity_namespace: 'plex'
+    include_non_clients: true
+    scan_interval: 5
+    show_all_controls: true
+    use_custom_entity_ids: true
+    use_episode_art: true
+
+ifttt:
+  key: !secret ifttt_key
+    
+light: !include lights.yaml
+    
+# Allows you to issue voice commands from the frontend in enabled browsers
+conversation:
+
+# Enables support for tracking state changes over time.
+history:
+
+# View all events in a logbook
+logbook:
+
+# Track the sun
+sun:
+
+# Text to speech
+tts:
+  platform: google
+
+input_slider:
+  slider1:
+    name: Amount of water
+    initial: 2
+    min: 0
+    max: 9
+    step: 1 
+    
+shell_command:
+  start_pump_cmd: !secret start_pump_mqtt
+
+
+script:
+  start_pump:
+    sequence:
+      # This is written using the Script Syntax
+      - service: shell_command.start_pump_cmd
+
+mqtt:
+  broker: 192.168.0.15
+  port: 1883
+  client_id: home-assistant-1
+  keepalive: 60
+  username: pi
+  password: !secret mqtt_pass
+  protocol: 3.1 
+
+sensor:
+  - platform: darksky
+    api_key: !secret darksky_key
+    monitored_conditions:
+      - icon
+      - hourly_summary
+      - temperature
+  - platform: mqtt
+    state_topic: 'plantWaterSystem/status'
+    name: 'SeraTemperature'
+    unit_of_measurement: '°C'
+    value_template: '{{ value_json.Temp }}'
+  - platform: mqtt
+    state_topic: 'plantWaterSystem/status'
+    name: 'SeraHumidity'
+    unit_of_measurement: '%'
+    value_template: '{{ value_json.Hum }}'
+  - platform: mqtt
+    state_topic: 'plantWaterSystem/status'
+    name: 'SeraSoilHumidity'
+    unit_of_measurement: '%'
+    value_template: '{{ value_json.SoilHum }}' 
+  - platform: mqtt
+    state_topic: 'plantWaterSystem/status'
+    name: 'SeraLight'
+    unit_of_measurement: '%'
+    value_template: '{{ value_json.Light }}' 
+  - platform: mqtt
+    state_topic: 'plantWaterSystem/status'
+    name: 'SeraWaterLvl'
+    unit_of_measurement: '%'
+    value_template: '{{ value_json.WaterLvl }}' 
+  - platform: mqtt
+    state_topic: 'plantWaterSystem/status'
+    name: 'SeraPumpStatus'
+    value_template: '{{ value_json.PumpStatus}}'
+  - platform: mqtt
+    state_topic: 'plantWaterSystem/online'
+    name: 'SeraStatus'    
+    
+group: !include groups.yaml
+

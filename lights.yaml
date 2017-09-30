@@ -1,0 +1,18 @@
+- platform: limitlessled
+  bridges: 
+    - host: 192.168.0.11
+      version: 4
+      port: 8899
+      groups:
+      - number: 1
+        type: rgbw
+        name: Living Room
+      - number: 2
+        type: rgbw
+        name: Bathroom
+      - number: 3
+        type: rgbw
+        name: Kitchen
+      - number: 4
+        type: rgbw
+        name: Bedroom

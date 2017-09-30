@@ -1,0 +1,15 @@
+ sera:
+  name: Sera
+  entities: 
+   - sensor.serastatus
+   - input_slider.slider1
+   - script.start_pump
+   - sensor.serapumpstatus
+   - sensor.serahumidity
+   - sensor.seratemperature
+   - sensor.serasoilhumidity
+   - sensor.seralight
+   - sensor.serawaterlvl
+   
+   
+  
